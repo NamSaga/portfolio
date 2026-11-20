@@ -1,0 +1,122 @@
+---
+import { renderArtwork, type Artwork } from '../lib/artworks';
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  artworks: Artwork[];
+  lang: Lang;
+  /** Images with the same group can be browsed together in the image viewer. */
+  group: string;
+  /**
+   * rows: rows of images of the same height (default).
+   * stack: same, but one full-width image per line on phones (home page).
+   * tight: no space between images (galleries inside a project).
+   */
+  variant?: 'rows' | 'stack' | 'tight';
+  /** How many of the first images load right away instead of when scrolled to. */
+  eager?: number;
+}
+
+const { artworks, lang, group, variant = 'rows', eager = 0 } = Astro.props;
+
+const items = await Promise.all(
+  artworks.map((art, index) => {
+    const ratio = art.image.width / art.image.height;
+    const desktopWidth = Math.min(Math.ceil(310 * ratio), 1300);
+    return renderArtwork(art, lang, {
+      sizes: `(max-width: 736px) 100vw, ${desktopWidth}px`,
+      fallbackAlt: `${ui.artwork[lang]} ${index + 1}`,
+    });
+  }),
+);
+---
+
+{
+  items.length > 0 && (
+    <ul class:list={['gallery', variant]}>
+      {items.map((item, index) => (
+        <li>
+          <a
+            class="thumb"
+            href={item.full.src}
+            data-lightbox={group}
+            data-caption={item.caption || undefined}
+            data-width={item.full.width}
+            data-height={item.full.height}
+          >
+            <img
+              src={item.thumb.src}
+              srcset={item.thumb.srcset}
+              sizes={item.thumb.sizes}
+              width={item.thumb.width}
+              height={item.thumb.height}
+              alt={item.alt}
+              loading={index < eager ? 'eager' : 'lazy'}
+              decoding="async"
+              style={`--ratio: ${item.ratio}; --natural-height: ${item.full.height}px`}
+            />
+          </a>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+<style>
+  .gallery {
+    --row: 17.75rem;
+    --gap: 0.5rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--gap);
+    container-type: inline-size;
+  }
+
+  .tight {
+    --gap: 0;
+  }
+
+  .thumb {
+    display: block;
+    overflow: hidden;
+  }
+
+  /* Same height for every image in a row, never wider than the gallery and never enlarged. */
+  img {
+    display: block;
+    width: auto;
+    height: min(var(--row), calc(100cqw / var(--ratio)), var(--natural-height));
+    max-width: 100%;
+    transition: transform 0.375s ease;
+  }
+
+  .thumb:hover img {
+    transform: scale(1.2);
+  }
+
+  @media (max-width: 736px) {
+    .gallery {
+      --row: 13.3125rem;
+    }
+
+    .stack {
+      flex-direction: column;
+    }
+
+    .stack img {
+      width: 100%;
+      height: auto;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .gallery {
+      --gap: 0.375rem;
+    }
+
+    .tight {
+      --gap: 0;
+    }
+  }
+</style>

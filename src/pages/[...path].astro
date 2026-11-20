@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import SectionFooter from '../components/SectionFooter.astro';
+import Gallery from '../components/Gallery.astro';
+import { galleryArtworks } from '../lib/artworks';
 import { pages, pageUrl, type PageDef } from '../site.config';
 import { languages, type Lang } from '../i18n';
 
@@ -23,5 +25,16 @@ const { page, lang } = Astro.props;
 ---
 
 <Base page={page} lang={lang}>
+  {
+    page.kind === 'gallery' && (
+      <Gallery
+        artworks={galleryArtworks(page.id)}
+        lang={lang}
+        group={page.id}
+        variant={page.id === 'home' ? 'stack' : 'rows'}
+        eager={4}
+      />
+    )
+  }
   {page.kind !== 'about' && <SectionFooter />}
 </Base>
