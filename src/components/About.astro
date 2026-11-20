@@ -1,0 +1,153 @@
+---
+import { getEntry, render } from 'astro:content';
+import { Image } from 'astro:assets';
+import portrait from '../../content/about/portrait.png';
+import SocialIcons from './SocialIcons.astro';
+import { site } from '../site.config';
+import { defaultLang, ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+// English text if content/about/en.md exists, otherwise French.
+const base = await getEntry('about', defaultLang);
+const entry = (await getEntry('about', lang)) ?? base;
+const data = { ...base?.data, ...entry?.data };
+const name = data.name ?? site.name;
+const Content = entry ? (await render(entry)).Content : undefined;
+
+// The address is assembled in the browser so simple spam bots don't find it in the page.
+const [emailUser, emailDomain] = site.email.split('@');
+---
+
+<section class="about">
+  <div class="intro">
+    <h1 class="name">{name}</h1>
+    {data.role && <p class="role">{data.role}</p>}
+    <hr class="divider" />
+    {
+      Content && (
+        <div class="bio">
+          <Content />
+        </div>
+      )
+    }
+    <p class="email">
+      {`${ui.email[lang]} : `}<a class="email-link" data-user={emailUser} data-domain={emailDomain}>{emailUser} [at] {emailDomain}</a>
+    </p>
+    <SocialIcons align="start" />
+  </div>
+
+  <div class="portrait">
+    <Image src={portrait} alt={name} loading="eager" />
+  </div>
+</section>
+
+{data.note && <p class="note">{data.note}</p>}
+
+<script>
+  for (const link of document.querySelectorAll<HTMLAnchorElement>('a.email-link')) {
+    const address = `${link.dataset.user}@${link.dataset.domain}`;
+    link.href = `mailto:${address}`;
+    link.textContent = address;
+  }
+</script>
+
+<style>
+  .about {
+    --gutter: 4rem;
+    display: flex;
+    align-items: center;
+    gap: var(--gutter);
+  }
+
+  .intro,
+  .portrait {
+    flex: 1 1 50%;
+    min-width: 0;
+  }
+
+  .intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    text-align: left;
+  }
+
+  .intro .divider {
+    margin: 0;
+  }
+
+  .name {
+    color: var(--heading);
+    font-size: 1.375em;
+    font-weight: 300;
+    letter-spacing: -0.025rem;
+    line-height: 1;
+  }
+
+  .role {
+    color: var(--subtle);
+    font-size: 0.875em;
+    font-weight: 300;
+    line-height: 1.125;
+    text-transform: uppercase;
+  }
+
+  .bio,
+  .email {
+    color: var(--text);
+    font-size: 0.875em;
+    font-weight: 200;
+    letter-spacing: 0.025rem;
+    line-height: 1.25;
+  }
+
+  .bio :global(p + p) {
+    margin-top: 0.5rem;
+  }
+
+  .email-link {
+    cursor: pointer;
+  }
+
+  .portrait {
+    display: flex;
+    justify-content: center;
+  }
+
+  .portrait img {
+    display: block;
+    width: 24rem;
+    height: 21rem;
+    max-width: 100%;
+    border-radius: 100%;
+    object-fit: cover;
+  }
+
+  .note {
+    margin-top: var(--block-gap);
+    color: var(--text);
+    font-size: 0.875em;
+    font-weight: 200;
+    letter-spacing: 0.025rem;
+    line-height: 1.25;
+    text-align: center;
+  }
+
+  @media (max-width: 736px) {
+    .about {
+      --gutter: 2rem;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .intro,
+    .portrait {
+      flex: none;
+    }
+  }
+</style>
