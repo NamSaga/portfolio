@@ -28,6 +28,51 @@
   color-scheme: light;
 }
 
+/* Dark colors: used when the visitor's system is in dark mode, or when they pick it with the toggle. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #1e1e2e;
+    --heading: #cdd6f4;
+    --text: #bac2de;
+    --subtle: #a6adc8;
+    --muted: rgba(186, 194, 222, 0.72);
+    --line: rgba(147, 153, 178, 0.35);
+    --accent: #f38ba8;
+    --accent-hover: #f5a6bc;
+    --link-hover: #f5a6bc;
+    --nav-text: #cdd6f4;
+    --nav-bg: #1e1e2e;
+    --nav-hover-text: #1e1e2e;
+    --nav-hover-bg: #f9e2af;
+    --icon: rgba(166, 173, 200, 0.75);
+    --icon-border: rgba(205, 214, 244, 0.18);
+    --icon-hover: #cdd6f4;
+
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme='dark'] {
+  --bg: #1e1e2e;
+  --heading: #cdd6f4;
+  --text: #bac2de;
+  --subtle: #a6adc8;
+  --muted: rgba(186, 194, 222, 0.72);
+  --line: rgba(147, 153, 178, 0.35);
+  --accent: #f38ba8;
+  --accent-hover: #f5a6bc;
+  --link-hover: #f5a6bc;
+  --nav-text: #cdd6f4;
+  --nav-bg: #1e1e2e;
+  --nav-hover-text: #1e1e2e;
+  --nav-hover-bg: #f9e2af;
+  --icon: rgba(166, 173, 200, 0.75);
+  --icon-border: rgba(205, 214, 244, 0.18);
+  --icon-hover: #cdd6f4;
+
+  color-scheme: dark;
+}
+
 html {
   font-size: 13pt;
 }
@@ -72,6 +117,7 @@ html {
 
 body {
   margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease;
   min-width: 320px;
   min-height: 100vh;
   overflow-x: hidden;

@@ -26,6 +26,7 @@ export const ui = {
   previous: { fr: 'Image précédente', en: 'Previous image' },
   next: { fr: 'Image suivante', en: 'Next image' },
   close: { fr: 'Fermer', en: 'Close' },
+  darkMode: { fr: 'Mode sombre', en: 'Dark mode' },
   notFound: { fr: 'Page introuvable.', en: 'Page not found.' },
   backHome: { fr: "Retour à l'accueil", en: 'Back to home' },
 } satisfies Record<string, Record<Lang, string>>;

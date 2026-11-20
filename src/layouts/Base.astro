@@ -46,11 +46,20 @@ const touchIcon = await getImage({ src: avatar, width: 180, height: 180, fit: 'c
     <meta property="og:image:width" content="1280" />
     <meta property="og:image:height" content="800" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1e1e2e" media="(prefers-color-scheme: dark)" />
+    <script is:inline>
+      // Apply the saved theme before the page is drawn, to avoid a flash of the wrong colors.
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
     <slot name="head" />
   </head>
   <body>
     <div class="site">
-      <Header page={page} lang={lang}><slot name="header" /></Header>
+      <Header page={page} lang={lang} />
       <main>
         <slot />
       </main>

@@ -1,6 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import avatar from '../../content/avatar.jpg';
+import ThemeToggle from './ThemeToggle.astro';
 import { pages, homePage, pageUrl, site, type PageDef } from '../site.config';
 import { ui, type Lang } from '../i18n';
 
@@ -14,7 +15,10 @@ const navPages = pages.filter((p) => p.label);
 ---
 
 <header class="site-header">
-  <slot />
+  <div class="toolbar">
+    <ThemeToggle lang={lang} />
+  </div>
+
   <a class="avatar" href={pageUrl(homePage, lang)} aria-label={`${site.name} · ${ui.home[lang]}`}>
     <Image src={avatar} alt="" loading="eager" />
   </a>
@@ -44,6 +48,15 @@ const navPages = pages.filter((p) => p.label);
     align-items: center;
     gap: var(--spacing);
     view-transition-name: site-header;
+  }
+
+  .toolbar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    gap: 0.75rem;
+    z-index: 1;
   }
 
   .site-header .divider {
