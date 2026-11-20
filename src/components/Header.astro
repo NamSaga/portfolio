@@ -1,0 +1,126 @@
+---
+import { Image } from 'astro:assets';
+import avatar from '../../content/avatar.jpg';
+import { pages, homePage, pageUrl, site, type PageDef } from '../site.config';
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  page: PageDef;
+  lang: Lang;
+}
+
+const { page, lang } = Astro.props;
+const navPages = pages.filter((p) => p.label);
+---
+
+<header class="site-header">
+  <slot />
+  <a class="avatar" href={pageUrl(homePage, lang)} aria-label={`${site.name} · ${ui.home[lang]}`}>
+    <Image src={avatar} alt="" loading="eager" />
+  </a>
+
+  <nav aria-label={ui.mainNav[lang]}>
+    <ul class="nav">
+      {
+        navPages.map((p) => (
+          <li>
+            <a href={pageUrl(p, lang)} aria-current={p.id === page.id ? 'page' : undefined}>
+              {p.label![lang]}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <hr class="divider" />
+</header>
+
+<style>
+  .site-header {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing);
+    view-transition-name: site-header;
+  }
+
+  .site-header .divider {
+    margin: 0;
+    width: 100%;
+  }
+
+  .avatar {
+    display: block;
+    width: 12.25rem;
+    height: 20.875rem;
+    overflow: hidden;
+    border-radius: 3rem;
+    background-color: var(--frame-bg);
+  }
+
+  .avatar img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .nav a {
+    display: inline-block;
+    width: 15.875rem;
+    max-width: 100%;
+    height: 2.625rem;
+    padding: 0 0.5rem 0 0.675rem;
+    border-radius: 1.375rem;
+    background-color: var(--nav-bg);
+    color: var(--nav-text);
+    font-size: 0.875em;
+    font-weight: 300;
+    letter-spacing: 0.175rem;
+    line-height: 2.625rem;
+    text-align: center;
+    text-transform: lowercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition:
+      transform 0.25s ease,
+      color 0.25s ease,
+      background-color 0.25s ease;
+  }
+
+  .nav a:hover {
+    background-color: var(--nav-hover-bg);
+    color: var(--nav-hover-text);
+    transform: scale(0.975);
+  }
+
+  .nav a[aria-current='page'] {
+    font-weight: 500;
+  }
+
+  @media (max-width: 480px) {
+    .nav {
+      flex-direction: column;
+      width: 100%;
+      align-items: center;
+    }
+
+    .nav li {
+      width: 100%;
+      max-width: 32rem;
+    }
+
+    .nav a {
+      width: 100%;
+    }
+  }
+</style>

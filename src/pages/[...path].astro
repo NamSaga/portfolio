@@ -1,0 +1,27 @@
+---
+import Base from '../layouts/Base.astro';
+import SectionFooter from '../components/SectionFooter.astro';
+import { pages, pageUrl, type PageDef } from '../site.config';
+import { languages, type Lang } from '../i18n';
+
+// One static page per entry in `pages` and per language.
+export function getStaticPaths() {
+  return languages.flatMap((lang) =>
+    pages.map((page) => ({
+      params: { path: pageUrl(page, lang).replace(/^\/|\/$/g, '') || undefined },
+      props: { page, lang },
+    })),
+  );
+}
+
+interface Props {
+  page: PageDef;
+  lang: Lang;
+}
+
+const { page, lang } = Astro.props;
+---
+
+<Base page={page} lang={lang}>
+  {page.kind !== 'about' && <SectionFooter />}
+</Base>

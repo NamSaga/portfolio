@@ -1,0 +1,33 @@
+---
+import SocialIcons from './SocialIcons.astro';
+import { site } from '../site.config';
+---
+
+<footer class="section-footer">
+  <hr class="divider" />
+  <p class="signature">{site.name}, {site.year}.</p>
+  <SocialIcons align="end" />
+</footer>
+
+<style>
+  .section-footer {
+    margin-top: var(--block-gap);
+  }
+
+  .signature {
+    margin: var(--spacing) 0;
+    text-align: right;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-size: 0.75em;
+    font-weight: 300;
+    letter-spacing: 0.4rem;
+    line-height: 1.375;
+  }
+
+  @media (max-width: 736px) {
+    .signature {
+      letter-spacing: 0.35rem;
+    }
+  }
+</style>

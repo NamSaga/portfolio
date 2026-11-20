@@ -1,0 +1,77 @@
+---
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/inter/wght-italic.css';
+import '../styles/global.css';
+import { getImage } from 'astro:assets';
+import avatar from '../../content/avatar.jpg';
+import Header from '../components/Header.astro';
+import { site, pageUrl, type PageDef } from '../site.config';
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  page: PageDef;
+  lang: Lang;
+}
+
+const { page, lang } = Astro.props;
+
+const label = page.label?.[lang];
+const title = label ? `${label.charAt(0).toUpperCase()}${label.slice(1)} · ${site.title}` : site.title;
+const description = ui.description[lang];
+const canonical = new URL(pageUrl(page, lang), Astro.site);
+const socialImage = new URL('/social-preview.jpg', Astro.site);
+
+const favicon = await getImage({ src: avatar, width: 64, height: 64, fit: 'cover', format: 'png' });
+const touchIcon = await getImage({ src: avatar, width: 180, height: 180, fit: 'cover', format: 'png' });
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" type="image/png" href={favicon.src} />
+    <link rel="apple-touch-icon" href={touchIcon.src} />
+
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={socialImage} />
+    <meta property="og:image:width" content="1280" />
+    <meta property="og:image:height" content="800" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <slot name="head" />
+  </head>
+  <body>
+    <div class="site">
+      <Header page={page} lang={lang}><slot name="header" /></Header>
+      <main>
+        <slot />
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  .site {
+    width: var(--width);
+    max-width: 100%;
+    margin: 0 auto;
+    padding: var(--pad-y) var(--pad-x) calc(var(--pad-y) + 3.875rem);
+  }
+
+  main {
+    margin-top: var(--block-gap);
+  }
+
+  @media (max-width: 736px) {
+    .site {
+      padding-bottom: var(--pad-y);
+    }
+  }
+</style>
