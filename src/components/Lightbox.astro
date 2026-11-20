@@ -1,0 +1,336 @@
+---
+import { ui, type Lang } from '../i18n';
+
+interface Props {
+  lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+<dialog class="lightbox" aria-label={ui.viewer[lang]}>
+  <figure class="stage">
+    <img class="image" alt="" />
+    <figcaption class="caption">
+      <span class="caption-text"></span>
+      <span class="counter"></span>
+    </figcaption>
+  </figure>
+
+  <button class="nav prev" type="button" aria-label={ui.previous[lang]}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4 7 12l8 8"></path></svg>
+  </button>
+  <button class="nav next" type="button" aria-label={ui.next[lang]}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 4 8 8-8 8"></path></svg>
+  </button>
+  <button class="close" type="button" aria-label={ui.close[lang]}>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"></path></svg>
+  </button>
+</dialog>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('dialog.lightbox');
+
+  if (dialog) {
+    const stage = dialog.querySelector<HTMLElement>('.stage')!;
+    const image = dialog.querySelector<HTMLImageElement>('.image')!;
+    const captionText = dialog.querySelector<HTMLElement>('.caption-text')!;
+    const counter = dialog.querySelector<HTMLElement>('.counter')!;
+    const prevButton = dialog.querySelector<HTMLButtonElement>('.prev')!;
+    const nextButton = dialog.querySelector<HTMLButtonElement>('.next')!;
+    const closeButton = dialog.querySelector<HTMLButtonElement>('.close')!;
+
+    let links: HTMLAnchorElement[] = [];
+    let index = 0;
+
+    const preload = (i: number) => {
+      const link = links[(i + links.length) % links.length];
+      if (link) new Image().src = link.href;
+    };
+
+    const show = (i: number) => {
+      index = (i + links.length) % links.length;
+      const link = links[index];
+
+      dialog.classList.add('loading');
+      image.classList.remove('ready');
+      image.onload = () => {
+        dialog.classList.remove('loading');
+        image.classList.add('ready');
+      };
+      image.width = Number(link.dataset.width) || 0;
+      image.height = Number(link.dataset.height) || 0;
+      image.alt = link.querySelector('img')?.alt ?? '';
+      image.src = link.href;
+
+      captionText.textContent = link.dataset.caption ?? '';
+      counter.textContent = links.length > 1 ? `${index + 1} / ${links.length}` : '';
+
+      const single = links.length < 2;
+      prevButton.hidden = single;
+      nextButton.hidden = single;
+      if (!single) {
+        preload(index + 1);
+        preload(index - 1);
+      }
+    };
+
+    // Open when a gallery image is clicked (ctrl/cmd-click still opens the file in a new tab).
+    document.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const link = (event.target as Element).closest<HTMLAnchorElement>('a[data-lightbox]');
+      if (!link) return;
+
+      event.preventDefault();
+      const group = link.dataset.lightbox!;
+      links = [...document.querySelectorAll<HTMLAnchorElement>('a[data-lightbox]')].filter(
+        (a) => a.dataset.lightbox === group,
+      );
+      show(links.indexOf(link));
+      document.documentElement.classList.add('lightbox-open');
+      dialog.showModal();
+    });
+
+    prevButton.addEventListener('click', () => show(index - 1));
+    nextButton.addEventListener('click', () => show(index + 1));
+    closeButton.addEventListener('click', () => dialog.close());
+
+    // Clicking the dark area around the image closes the viewer.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog || event.target === stage) dialog.close();
+    });
+
+    dialog.addEventListener('keydown', (event) => {
+      if (links.length < 2) return;
+      if (event.key === 'ArrowLeft') show(index - 1);
+      if (event.key === 'ArrowRight') show(index + 1);
+    });
+
+    dialog.addEventListener('close', () => {
+      document.documentElement.classList.remove('lightbox-open');
+      image.removeAttribute('src');
+    });
+
+    // Swipe left/right to change image, swipe down to close.
+    let startX = 0;
+    let startY = 0;
+    dialog.addEventListener('pointerdown', (event) => {
+      startX = event.clientX;
+      startY = event.clientY;
+    });
+    dialog.addEventListener('pointerup', (event) => {
+      if (event.pointerType === 'mouse') return;
+      const dx = event.clientX - startX;
+      const dy = event.clientY - startY;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && links.length > 1) {
+        show(dx < 0 ? index + 1 : index - 1);
+      } else if (dy > 80 && dy > Math.abs(dx)) {
+        dialog.close();
+      }
+    });
+  }
+</script>
+
+<style>
+  :global(html.lightbox-open) {
+    overflow: hidden;
+  }
+
+  .lightbox {
+    width: 100vw;
+    height: 100dvh;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(10, 10, 10, 0.9);
+    color: #ffffff;
+    overflow: hidden;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .lightbox[open] {
+    display: grid;
+    grid-template-columns: 6rem minmax(0, 1fr) 6rem;
+    align-items: center;
+    animation: fade-in 0.3s ease;
+  }
+
+  .lightbox::backdrop {
+    background: transparent;
+  }
+
+  .stage {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: center;
+    justify-items: center;
+    gap: 1rem;
+    height: 100dvh;
+    padding: 3.5rem 0 1.5rem;
+    margin: 0;
+  }
+
+  .image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    box-shadow: 0 1em 3em rgba(0, 0, 0, 0.35);
+    opacity: 0;
+    transform: translateY(0.75em);
+    transition:
+      opacity 0.35s ease,
+      transform 0.5s ease;
+  }
+
+  .image.ready {
+    opacity: 1;
+    transform: none;
+  }
+
+  .caption {
+    display: flex;
+    gap: 1.25rem;
+    align-items: baseline;
+    justify-content: center;
+    min-height: 1.25em;
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 0.05rem;
+    line-height: 1.4;
+    text-align: center;
+  }
+
+  .counter {
+    color: rgba(255, 255, 255, 0.55);
+    font-size: 0.8em;
+    letter-spacing: 0.15rem;
+    white-space: nowrap;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #ffffff;
+    cursor: pointer;
+    opacity: 0.6;
+    transition:
+      opacity 0.25s ease,
+      transform 0.25s ease;
+  }
+
+  button:hover,
+  button:focus-visible {
+    opacity: 1;
+  }
+
+  button[hidden] {
+    display: none;
+  }
+
+  svg {
+    width: 2.25rem;
+    height: 2.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .nav {
+    grid-row: 1;
+    height: 6rem;
+  }
+
+  .prev {
+    grid-column: 1;
+  }
+
+  .next {
+    grid-column: 3;
+  }
+
+  .prev:hover {
+    transform: translateX(-0.25rem);
+  }
+
+  .next:hover {
+    transform: translateX(0.25rem);
+  }
+
+  .close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* Spinner while a large image loads. */
+  .lightbox.loading .stage::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: -1.25rem 0 0 -1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-top-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation: spin 0.9s linear infinite;
+  }
+
+  @media (max-width: 736px) {
+    .lightbox[open] {
+      grid-template-columns: 0 minmax(0, 1fr) 0;
+    }
+
+    .stage {
+      padding: 3.5rem 0.75rem 1.25rem;
+    }
+
+    .nav {
+      position: absolute;
+      bottom: 0.25rem;
+      width: 3.5rem;
+      height: 3.5rem;
+    }
+
+    .prev {
+      left: 0.25rem;
+    }
+
+    .next {
+      right: 0.25rem;
+    }
+
+    .caption {
+      padding: 0 3.5rem;
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

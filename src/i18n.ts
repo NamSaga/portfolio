@@ -22,6 +22,10 @@ export const ui = {
   home: { fr: 'Accueil', en: 'Home' },
   mainNav: { fr: 'Navigation principale', en: 'Main navigation' },
   email: { fr: 'email', en: 'email' },
+  viewer: { fr: "Visionneuse d'images", en: 'Image viewer' },
+  previous: { fr: 'Image précédente', en: 'Previous image' },
+  next: { fr: 'Image suivante', en: 'Next image' },
+  close: { fr: 'Fermer', en: 'Close' },
   notFound: { fr: 'Page introuvable.', en: 'Page not found.' },
   backHome: { fr: "Retour à l'accueil", en: 'Back to home' },
 } satisfies Record<string, Record<Lang, string>>;

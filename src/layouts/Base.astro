@@ -5,6 +5,7 @@ import '../styles/global.css';
 import { getImage } from 'astro:assets';
 import avatar from '../../content/avatar.jpg';
 import Header from '../components/Header.astro';
+import Lightbox from '../components/Lightbox.astro';
 import { site, pageUrl, type PageDef } from '../site.config';
 import { ui, type Lang } from '../i18n';
 
@@ -54,6 +55,7 @@ const touchIcon = await getImage({ src: avatar, width: 180, height: 180, fit: 'c
         <slot />
       </main>
     </div>
+    <Lightbox lang={lang} />
   </body>
 </html>
 
