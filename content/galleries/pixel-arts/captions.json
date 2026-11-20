@@ -1,7 +1,12 @@
 {
   "02-madani.png": "Madani - Character design",
-  "03-tir-en-rafale.gif": "Tir en rafale - impact",
-  "06-mouvements-lance.gif": "Mouvements - lance",
-  "08-coin-rush-frog.png": "Scène de menu principal pour le jeu Coin Rush Frog",
-  "09-assets-ecospheria.png": "Assets du jeu Ecospheria"
+  "03-tir-en-rafale.gif": { "fr": "Tir en rafale - impact", "en": "Burst fire - impact" },
+  "04-mouvements-horizontaux.gif": { "fr": "Mouvements horizontaux", "en": "Horizontal movement" },
+  "06-mouvements-lance.gif": { "fr": "Mouvements - lance", "en": "Movement - spear" },
+  "07-visuel-ecospheria.png": { "fr": "Visuel Ecospheria", "en": "Ecospheria visual" },
+  "08-coin-rush-frog.png": {
+    "fr": "Scène de menu principal pour le jeu Coin Rush Frog",
+    "en": "Main menu scene for the game Coin Rush Frog"
+  },
+  "09-assets-ecospheria.png": { "fr": "Assets du jeu Ecospheria", "en": "Assets for the game Ecospheria" }
 }

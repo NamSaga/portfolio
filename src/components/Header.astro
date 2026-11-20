@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import avatar from '../../content/avatar.jpg';
 import ThemeToggle from './ThemeToggle.astro';
+import LanguageSwitch from './LanguageSwitch.astro';
 import { pages, homePage, pageUrl, site, type PageDef } from '../site.config';
 import { ui, type Lang } from '../i18n';
 
@@ -16,6 +17,7 @@ const navPages = pages.filter((p) => p.label);
 
 <header class="site-header">
   <div class="toolbar">
+    <LanguageSwitch page={page} lang={lang} />
     <ThemeToggle lang={lang} />
   </div>
 

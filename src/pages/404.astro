@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { homePage, pageUrl } from '../site.config';
+import { ui } from '../i18n';
+---
+
+<Base page={homePage} lang="fr" notFound>
+  <section class="not-found">
+    <p>{ui.notFound.fr} <span lang="en">{ui.notFound.en}</span></p>
+    <p>
+      <a href={pageUrl(homePage, 'fr')}>{ui.backHome.fr}</a>
+      <span aria-hidden="true">·</span>
+      <a href={pageUrl(homePage, 'en')} lang="en">{ui.backHome.en}</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .not-found {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    padding: 4rem 0;
+    color: var(--muted);
+    font-size: 0.875em;
+    font-weight: 300;
+    letter-spacing: 0.2rem;
+    line-height: 1.5;
+    text-align: center;
+  }
+
+  .not-found span[lang] {
+    display: block;
+  }
+</style>
