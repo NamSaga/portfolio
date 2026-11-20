@@ -2,7 +2,9 @@
 import Base from '../layouts/Base.astro';
 import SectionFooter from '../components/SectionFooter.astro';
 import Gallery from '../components/Gallery.astro';
+import Project from '../components/Project.astro';
 import { galleryArtworks } from '../lib/artworks';
+import { projectsFor } from '../lib/projects';
 import { pages, pageUrl, type PageDef } from '../site.config';
 import { languages, type Lang } from '../i18n';
 
@@ -22,6 +24,7 @@ interface Props {
 }
 
 const { page, lang } = Astro.props;
+const projects = page.kind === 'projects' ? await projectsFor(page.id, lang) : [];
 ---
 
 <Base page={page} lang={lang}>
@@ -36,5 +39,6 @@ const { page, lang } = Astro.props;
       />
     )
   }
+  {projects.map((project) => <Project project={project} lang={lang} />)}
   {page.kind !== 'about' && <SectionFooter />}
 </Base>

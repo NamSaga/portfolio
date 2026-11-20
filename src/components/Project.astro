@@ -1,0 +1,198 @@
+---
+import { render } from 'astro:content';
+import Gallery from './Gallery.astro';
+import { renderArtwork } from '../lib/artworks';
+import type { Project } from '../lib/projects';
+import type { Lang } from '../i18n';
+
+interface Props {
+  project: Project;
+  lang: Lang;
+}
+
+const { project, lang } = Astro.props;
+const { Content } = await render(project.entry);
+
+const cover =
+  project.layout === 'cover' && project.artworks[0]
+    ? await renderArtwork(project.artworks[0], lang, {
+        sizes: '(max-width: 736px) 100vw, 360px',
+        fallbackAlt: project.title,
+      })
+    : undefined;
+---
+
+<article class:list={['project', `layout-${project.layout}`]}>
+  <div class="media">
+    {
+      cover ? (
+        <a
+          class="cover-frame"
+          href={cover.full.src}
+          data-lightbox={project.id}
+          data-caption={project.title}
+          data-width={cover.full.width}
+          data-height={cover.full.height}
+        >
+          <img
+            src={cover.thumb.src}
+            srcset={cover.thumb.srcset}
+            sizes={cover.thumb.sizes}
+            width={cover.thumb.width}
+            height={cover.thumb.height}
+            alt={project.title}
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
+      ) : (
+        <Gallery artworks={project.artworks} lang={lang} group={project.id} variant="tight" />
+      )
+    }
+  </div>
+
+  <div class="text">
+    <h2 class="heading">
+      <strong>{project.title}</strong>
+      {project.subtitle && <span class="subtitle">{project.subtitle}</span>}
+      {project.year && <span class="year">{project.year}</span>}
+    </h2>
+    <div class="body">
+      <Content />
+    </div>
+    {
+      project.link && (
+        <a class="link" href={project.link.url} target="_blank" rel="noopener">
+          {project.link.label}
+        </a>
+      )
+    }
+  </div>
+</article>
+
+<style>
+  .project {
+    --gutter: 4rem;
+    display: flex;
+    align-items: center;
+    gap: var(--gutter);
+    width: 61rem;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  .project + :global(.project) {
+    margin-top: var(--block-gap);
+  }
+
+  .layout-cover .media,
+  .layout-cover .text {
+    flex: 1 1 50%;
+  }
+
+  .layout-gallery .media {
+    flex: 0 0 calc(70% - var(--gutter) / 2);
+  }
+
+  .layout-gallery .text {
+    flex: 0 0 calc(30% - var(--gutter) / 2);
+  }
+
+  .media {
+    min-width: 0;
+  }
+
+  .cover-frame {
+    display: block;
+    width: 16.375rem;
+    height: 22.5rem;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .cover-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: left;
+    transition: transform 0.375s ease;
+  }
+
+  .cover-frame:hover img {
+    transform: scale(1.05);
+  }
+
+  .text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    color: var(--muted);
+    font-size: 1em;
+    font-weight: 400;
+    letter-spacing: 0.2rem;
+    line-height: 1.375;
+    text-align: left;
+  }
+
+  .heading {
+    display: flex;
+    flex-direction: column;
+    font-size: 1em;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .heading strong {
+    font-weight: 700;
+  }
+
+  .body :global(p + p) {
+    margin-top: 0.5rem;
+  }
+
+  .body :global(a) {
+    color: var(--accent);
+  }
+
+  .link {
+    align-self: flex-start;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0;
+    line-height: 1.5;
+    transition: color 0.25s ease;
+  }
+
+  .link:hover {
+    color: var(--link-hover);
+  }
+
+  @media (max-width: 736px) {
+    .project {
+      --gutter: 2rem;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .project .media,
+    .project .text {
+      flex: none;
+      width: 100%;
+    }
+
+    .layout-cover .media {
+      display: flex;
+      justify-content: center;
+    }
+
+    /* On phones the text comes before the gallery, like on the Carrd site. */
+    .layout-gallery .text {
+      order: -1;
+    }
+
+    .text {
+      letter-spacing: 0.175rem;
+    }
+  }
+</style>
